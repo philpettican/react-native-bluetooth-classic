@@ -434,10 +434,9 @@ export default class BluetoothModule {
     address: string,
     listener: BluetoothEventListener<BluetoothDeviceReadEvent>
   ): BluetoothEventSubscription {
-    let eventType = `${BluetoothEventType.DEVICE_READ}@${address}`;
+    const eventType = `${BluetoothEventType.DEVICE_READ}@${address}`;
     this._nativeModule.addListener(eventType);
-
-    let subscription = this._eventEmitter.addListener(eventType, listener);
+    const subscription = this._eventEmitter.addListener(eventType, listener);
 
     return {
       remove() {

@@ -1022,6 +1022,11 @@ public class RNBluetoothClassicModule
 
             // At this point just remove the connection, the DEVICE_DISCONNECTED should have been
             // sent from the ACL message already.
+            if (mConnections.containsKey(device.getAddress())) {
+                DeviceConnection connection = mConnections.get(device.getAddress());
+                connection.clearOnDataReceived();
+            }
+            
             mConnections.remove(device.getAddress());
             sendEvent(EventType.DEVICE_DISCONNECTED, new NativeDevice(device), new BluetoothException(e.getMessage()).map());
         };
@@ -1110,12 +1115,10 @@ public class RNBluetoothClassicModule
         EventType event = EventType.valueOf(eventType);
 
         if (EventType.DEVICE_READ == event) {
-            if (!mConnections.containsKey(eventDevice)) {
-                throw new IllegalStateException(String.format("Cannot read from %s, not currently connected", eventType));
+            if (mConnections.containsKey(eventDevice)) {
+                DeviceConnection connection = mConnections.get(eventDevice);
+                connection.clearOnDataReceived();
             }
-
-            DeviceConnection connection = mConnections.get(eventDevice);
-            connection.clearOnDataReceived();
         }
 
         // Only remove the listener if it currently exists.  If you're attemping to remove a listener
@@ -1155,12 +1158,10 @@ public class RNBluetoothClassicModule
         EventType event = EventType.valueOf(eventType);
 
         if (EventType.DEVICE_READ == event) {
-            if (!mConnections.containsKey(eventDevice)) {
-                throw new IllegalStateException(String.format("Cannot read from %s, not currently connected", eventType));
+            if (mConnections.containsKey(eventDevice)) {
+                DeviceConnection connection = mConnections.get(eventDevice);
+                connection.clearOnDataReceived();
             }
-
-            DeviceConnection connection = mConnections.get(eventDevice);
-            connection.clearOnDataReceived();
         }
 
         // Only remove the listener if it currently exists.  If you're attemping to remove a listener
@@ -1220,6 +1221,11 @@ public class RNBluetoothClassicModule
     @Override
     public void onACLDisconnected(NativeDevice device) {
         Log.d(TAG, "onACLDisconnected to " + device.getAddress());
+
+        if (mConnections.containsKey(device.getAddress())) {
+            DeviceConnection connection = mConnections.get(device.getAddress());
+            connection.clearOnDataReceived();
+        }
 
         mConnections.remove(device.getAddress());
         sendEvent(EventType.DEVICE_DISCONNECTED, device.map());
